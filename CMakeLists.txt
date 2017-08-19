@@ -10,8 +10,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include_directories(
     bloom-filter
+    third-parties/xxhash/src/
 )
 
 add_executable(bloom-filter
     bloom-filter/main.cpp
+    bloom-filter/bloom-filter.cpp
+    third-parties/xxhash/src/xxhash.c
 )
