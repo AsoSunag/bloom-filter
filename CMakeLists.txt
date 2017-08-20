@@ -1,20 +1,18 @@
 cmake_minimum_required(VERSION 3.4.1)
+include(cmake/macros.cmake)
 
 project(bloom-filter)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS "-Wall -fno-rtti")
+SetBuildSettings()
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+GetFiles(GLOB_RECURSE SRC_FILES bloom-filter/*)
+GetFiles(GLOB_RECURSE SRC_FILES third-parties/xxhash/src/*)
+
+add_library(bloom-filter STATIC ${SRC_FILES})
 
 include_directories(
-    bloom-filter
-    third-parties/xxhash/src/
-)
-
-add_executable(bloom-filter
-    bloom-filter/main.cpp
-    bloom-filter/bloom-filter.cpp
-    third-parties/xxhash/src/xxhash.c
+	bloom-filter
+	third-parties/xxhash/src/
 )
