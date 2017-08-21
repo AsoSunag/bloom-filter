@@ -6,7 +6,7 @@
 
 typedef unsigned long long U64;
 
-class BloomFilter 
+class BloomFilter
 {
 	static size_t default_bytes_nb;
 	static size_t default_seeds_nb;

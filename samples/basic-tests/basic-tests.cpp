@@ -1,8 +1,8 @@
+#include <chrono>
 #include <iostream>
 #include <vector>
-#include <chrono>
 
-struct TestCase 
+struct TestCase
 {
 	const std::string name;
 	bool (*testFn)();
@@ -22,11 +22,11 @@ void benchmark(const TestCase& testcase)
 
 	double time_span = 0.f;
 
-	while(time_span < testcase.bench_time)
+	while (time_span < testcase.bench_time)
 	{
 		intermediate_iterations = 0;
 		high_resolution_clock::time_point t1 = high_resolution_clock::now();
-		while(intermediate_iterations++ != testcase.bench_iter)
+		while (intermediate_iterations++ != testcase.bench_iter)
 		{
 			testcase.testFn();
 			iterations++;
@@ -36,37 +36,36 @@ void benchmark(const TestCase& testcase)
 
 		time_span += intermediate_time_span.count();
 	}
-	std::cout<<"Time(ms) : "<<(time_span / iterations)<<" - Total Time(ms) : "<<time_span<<" - Iterations : "<<iterations<<std::endl;
+	std::cout << "Time(ms) : " << (time_span / iterations) << " - Total Time(ms) : " << time_span << " - Iterations : " << iterations
+											<< std::endl;
 }
 
 bool SimpleUsageTest();
 bool MultipleEntriesTest();
 
-int main (int argc, char* argv[])
+int main(int argc, char* argv[])
 {
 	std::vector<TestCase> testCases = {
-		{"Simple Usage Test", SimpleUsageTest, 2 * 1000, 100000},
-		{"Multiple Entries Test", MultipleEntriesTest, 2 * 1000, 100000}
-	};
+		{"Simple Usage Test", SimpleUsageTest, 2 * 1000, 100000}, {"Multiple Entries Test", MultipleEntriesTest, 2 * 1000, 100000}};
 
 	if (argc > 1 && (strcmp(argv[1], "bench") == 0))
 	{
 		for (auto test : testCases)
 		{
-			std::cout<<"Start Bench : "<<test.name<<std::endl;
+			std::cout << "Start Bench : " << test.name << std::endl;
 			benchmark(test);
-			std::cout<<"End Bench : "<<test.name<<std::endl;
+			std::cout << "End Bench : " << test.name << std::endl;
 		}
 	}
 	else
 	{
 		for (auto test : testCases)
 		{
-			std::cout<<"Start Test : "<<test.name<<std::endl;
+			std::cout << "Start Test : " << test.name << std::endl;
 			bool result = test.testFn();
-			std::cout<<"End Test : "<<test.name<<" => "<< (result ? "OK" : "FAIL") <<std::endl;
+			std::cout << "End Test : " << test.name << " => " << (result ? "OK" : "FAIL") << std::endl;
 		}
 	}
-	
+
 	return 1;
 }
