@@ -4,14 +4,17 @@
 #include <string>
 #include <vector>
 
+typedef unsigned long long U64;
+
 class BloomFilter 
 {
 	static size_t default_bytes_nb;
-	static unsigned int default_seeds_nb;
+	static size_t default_seeds_nb;
 	size_t bytes_nb;
-	unsigned int seeds_nb;
-	std::vector<unsigned int> seeds;
-	char* bitset;
+	size_t U64_nb;
+	size_t seeds_nb;
+	std::vector<U64> seeds;
+	U64* bitset;
 
 public:
 	BloomFilter();
