@@ -6,6 +6,10 @@
 
 size_t BloomFilter::default_bytes_nb = 120;
 size_t BloomFilter::default_seeds_nb = 8;
+std::string BloomFilter::default_serialization_path = "";
+std::string BloomFilter::default_serialization_filename = "blob.bf";
+unsigned int BloomFilter::magic_header = 11062016;
+unsigned int BloomFilter::serialization_version = 0;
 
 BloomFilter::BloomFilter()
 	: bytes_nb(default_bytes_nb)
@@ -32,6 +36,8 @@ BloomFilter::BloomFilter(size_t items_nb, float false_positive_probability)
 
 void BloomFilter::Initialize()
 {
+	serialization_filename = default_serialization_filename;
+	serialization_path = default_serialization_path;
 	U64_nb = (size_t)std::ceil(bytes_nb / 8);
 	bitset = (U64*)calloc(std::ceil(bytes_nb / 8), sizeof(U64));
 	for (size_t i = 0; i < seeds_nb; ++i)
@@ -79,4 +85,72 @@ bool BloomFilter::Add(const std::string& input)
 		bitset[index.first] |= ((U64)1 << index.second);
 	});
 	return probably_exist;
+}
+
+bool BloomFilter::Serialize() const
+{
+	FILE* file;
+	std::string filepath = serialization_path + serialization_filename;
+	file = fopen(filepath.c_str(), "w");
+	if (file == nullptr)
+	{
+		return false;
+	}
+
+	fwrite(&magic_header, sizeof(unsigned int), 1, file);
+	fwrite(&serialization_version, sizeof(unsigned int), 1, file);
+	fwrite(&seeds_nb, sizeof(size_t), 1, file);
+	std::for_each(seeds.begin(), seeds.end(), [&](unsigned int seed) { fwrite(&seed, sizeof(U64), 1, file); });
+	fwrite(&U64_nb, sizeof(size_t), 1, file);
+	fwrite(bitset, sizeof(U64), U64_nb, file);
+
+	fclose(file);
+	return true;
+}
+
+bool BloomFilter::Unserialize()
+{
+	FILE* file;
+	std::string filepath = serialization_path + serialization_filename;
+	file = fopen(filepath.c_str(), "r");
+	if (file == nullptr)
+	{
+		return false;
+	}
+	unsigned int* serialized_magic_header = new unsigned int;
+	unsigned int* serialized_version = new unsigned int;
+	size_t* serialized_seeds_nb = new size_t;
+	size_t* serialized_U64_nb = new size_t;
+
+	fread(serialized_magic_header, 1, sizeof(unsigned int), file);
+	bool isSuccess = true;
+	if (*serialized_magic_header == magic_header)
+	{
+		fread(serialized_version, 1, sizeof(unsigned int), file);
+
+		fread(serialized_seeds_nb, 1, sizeof(size_t), file);
+		seeds_nb = *serialized_seeds_nb;
+
+		U64* serialized_seeds = new U64[seeds_nb];
+		fread(serialized_seeds, seeds_nb, sizeof(U64), file);
+		seeds = std::vector<U64>(serialized_seeds, serialized_seeds + seeds_nb);
+		delete[] serialized_seeds;
+
+		fread(serialized_U64_nb, 1, sizeof(size_t), file);
+		U64_nb = *serialized_U64_nb;
+		bytes_nb = U64_nb * 8;
+
+		fread(bitset, U64_nb, sizeof(U64), file);
+	}
+	else
+	{
+		isSuccess = false;
+	}
+	fclose(file);
+	delete serialized_magic_header;
+	delete serialized_version;
+	delete serialized_seeds_nb;
+	delete serialized_U64_nb;
+
+	return isSuccess;
 }

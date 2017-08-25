@@ -42,11 +42,12 @@ void benchmark(const TestCase& testcase)
 
 bool SimpleUsageTest();
 bool MultipleEntriesTest();
+bool SerializationTest();
 
 int main(int argc, char* argv[])
 {
-	std::vector<TestCase> testCases = {
-		{"Simple Usage Test", SimpleUsageTest, 2 * 1000, 100000}, {"Multiple Entries Test", MultipleEntriesTest, 2 * 1000, 100000}};
+	std::vector<TestCase> testCases = {{"Simple Usage Test", SimpleUsageTest, 2 * 1000, 100000},
+		{"Multiple Entries Test", MultipleEntriesTest, 2 * 1000, 100000}, {"Serialization Test", SerializationTest, 2 * 1000, 100000}};
 
 	if (argc > 1 && (strcmp(argv[1], "bench") == 0))
 	{
